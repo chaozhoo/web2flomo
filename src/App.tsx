@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { Header } from '@/components/layout/Header';
 import { Sider1 } from '@/components/layout/Sider1';
@@ -12,14 +12,24 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-
-const GOOGLE_CLIENT_ID = '736557561467-c3u2hk4u8mr5s0uth8r5qk9ebvr4d6vq.apps.googleusercontent.com';
+import { initGoogleAuth } from '@/lib/auth-service';
 
 function App() {
   const [activeNav, setActiveNav] = useState<NavItem>('library');
+  const [oauthProvider, setOauthProvider] = useState<GoogleOAuthProvider | null>(null);
+
+  useEffect(() => {
+    initGoogleAuth().then(provider => {
+      setOauthProvider(provider);
+    });
+  }, []);
+
+  if (!oauthProvider) {
+    return <div>Loading auth...</div>;
+  }
 
   return (
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider client={oauthProvider}>
       <div className="h-screen flex flex-col bg-background font-sans">
         <Header />
         <div className="flex-1 flex overflow-hidden">
