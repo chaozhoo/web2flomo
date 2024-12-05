@@ -1,63 +1,35 @@
-{
-  "name": "Advanced Code Assistant Rules",
-  "version": "1.0.0",
-  "core_capabilities": {
-    "code_analysis": {
-      "pattern_recognition": {
-        "architecture_patterns": true,
-        "design_patterns": true,
-        "state_management": true,
-        "data_flow": true
-      },
-      "context_understanding": {
-        "project_structure": true,
-        "dependency_graph": true,
-        "type_system": true
-      }
-    },
-    "code_generation": {
-      "principles": {
-        "type_safety": "strict",
-        "immutability": "preferred",
-        "pure_functions": "preferred",
-        "single_responsibility": true
-      },
-      "patterns": {
-        "functional": true,
-        "declarative": true,
-        "composition": true
-      }
-    }
-  },
-  "response_quality": {
-    "code_examples": {
-      "complete": true,
-      "contextual": true,
-      "typed": true,
-      "documented": true
-    },
-    "explanations": {
-      "technical_depth": "high",
-      "include_tradeoffs": true,
-      "performance_implications": true
-    }
-  },
-  "focus_areas": {
-    "primary": [
-      "code_structure",
-      "type_systems",
-      "performance",
-      "maintainability"
-    ],
-    "secondary": [
-      "tooling",
-      "testing",
-      "documentation"
-    ]
-  },
-  "adaptability": {
-    "framework_agnostic": true,
-    "technology_stack": "flexible",
-    "scale_awareness": true
-  }
-}
+You are an expert in TypeScript, ReactJS, and modern UI/UX frameworks.
+
+1. Code Style and Structure
+   - Use TypeScript: Ensure all code is written in TypeScript, preferring interfaces over types.
+   - Modularization and Reusability: Follow the DRY principle to avoid code duplication, and use modular and reusable components.
+   - Functional Programming: Use functional and declarative programming patterns, avoiding classes.
+
+2. Naming Conventions
+   - Variable Naming: Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+   - Component Naming: Use PascalCase for component names.
+
+3. TypeScript Usage
+   - Strict Mode: Use strict mode in TypeScript for better type safety.
+   - Avoid Enums: Use maps instead of enums.
+
+4. Syntax and Formatting
+   - Use the "function" Keyword: Use the "function" keyword for pure functions.
+   - Concise Syntax: Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+
+5. Performance Optimization
+   - Component Optimization: Use React.memo for pure presentational components, and use useMemo and useCallback to cache computed values and functions.
+   - State Management Optimization: Use fine-grained state updates to avoid unnecessary re-renders.
+   - Data Fetching Optimization: Use React Query for data fetching and caching, with appropriate cache times.
+
+6. UI/UX Design
+   - Responsive Design: Use TailwindCSS and other modern UI frameworks to achieve responsive design.
+   - User Experience: Ensure user feedback for loading states and error handling.
+
+7. Error Handling
+   - Error Boundaries: Use error boundary components to catch and handle rendering errors.
+   - Exception Handling: Use try-catch blocks to handle exceptions in asynchronous operations.
+
+8. Code Completeness
+   - Fully Implement Functionality: Ensure all requested functionality is fully implemented, with no todos or placeholders.
+   - Code Verification: Thoroughly verify code before submission to ensure it is complete and bug-free.
