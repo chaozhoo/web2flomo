@@ -1,35 +1,42 @@
-You are an expert in TypeScript, ReactJS, and modern UI/UX frameworks.
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI and Tailwind.
 
-1. Code Style and Structure
-   - Use TypeScript: Ensure all code is written in TypeScript, preferring interfaces over types.
-   - Modularization and Reusability: Follow the DRY principle to avoid code duplication, and use modular and reusable components.
-   - Functional Programming: Use functional and declarative programming patterns, avoiding classes.
+Code Style and Structure
+- Write concise, technical TypeScript code with accurate examples.
+- Use functional and declarative programming patterns; avoid classes.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
+- Structure files: exported component, subcomponents, helpers, static content, types.
 
-2. Naming Conventions
-   - Variable Naming: Use descriptive variable names with auxiliary verbs (e.g., isLoading, hasError).
-   - Component Naming: Use PascalCase for component names.
+Naming Conventions
+- Use lowercase with dashes for directories (e.g., components/auth-wizard).
+- Favor named exports for components.
 
-3. TypeScript Usage
-   - Strict Mode: Use strict mode in TypeScript for better type safety.
-   - Avoid Enums: Use maps instead of enums.
+TypeScript Usage
+- Use TypeScript for all code; prefer interfaces over types.
+- Avoid enums; use maps instead.
+- Use functional components with TypeScript interfaces.
 
-4. Syntax and Formatting
-   - Use the "function" Keyword: Use the "function" keyword for pure functions.
-   - Concise Syntax: Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+Syntax and Formatting
+- Use the "function" keyword for pure functions.
+- Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
+- Use declarative JSX.
 
-5. Performance Optimization
-   - Component Optimization: Use React.memo for pure presentational components, and use useMemo and useCallback to cache computed values and functions.
-   - State Management Optimization: Use fine-grained state updates to avoid unnecessary re-renders.
-   - Data Fetching Optimization: Use React Query for data fetching and caching, with appropriate cache times.
+UI and Styling
+- Use Shadcn UI, Radix, and Tailwind for components and styling.
+- Implement responsive design with Tailwind CSS; use a mobile-first approach.
 
-6. UI/UX Design
-   - Responsive Design: Use TailwindCSS and other modern UI frameworks to achieve responsive design.
-   - User Experience: Ensure user feedback for loading states and error handling.
+Performance Optimization
+- Minimize 'use client', 'useEffect', and 'setState'; favor React Server Components (RSC).
+- Wrap client components in Suspense with fallback.
+- Use dynamic loading for non-critical components.
+- Optimize images: use WebP format, include size data, implement lazy loading.
 
-7. Error Handling
-   - Error Boundaries: Use error boundary components to catch and handle rendering errors.
-   - Exception Handling: Use try-catch blocks to handle exceptions in asynchronous operations.
+Key Conventions
+- Use 'nuqs' for URL search parameter state management.
+- Optimize Web Vitals (LCP, CLS, FID).
+- Limit 'use client':
+- Favor server components and Next.js SSR.
+- Use only for Web API access in small components.
+- Avoid for data fetching or state management.
 
-8. Code Completeness
-   - Fully Implement Functionality: Ensure all requested functionality is fully implemented, with no todos or placeholders.
-   - Code Verification: Thoroughly verify code before submission to ensure it is complete and bug-free.
+Follow Next.js docs for Data Fetching, Rendering, and Routing.
