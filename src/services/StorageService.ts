@@ -1,17 +1,14 @@
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  updatedAt: number;
-}
+import { Octokit } from '@octokit/rest';
+import type { Note, GistContent } from '@/lib/types';
 
-class StorageService {
+export class StorageService {
   private db: IDBDatabase | null = null;
   private readonly DB_NAME = 'notesDB';
   private readonly STORE_NAME = 'notes';
-  private githubToken: string | null = null;
+  private octokit: Octokit | null = null;
+  private gistId: string | null = null;
 
-  // 初始化 IndexedDB
+  // IndexedDB 初始化
   private async initDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.DB_NAME, 1);
@@ -28,20 +25,22 @@ class StorageService {
     });
   }
 
-  // 保存到本地
+  // 本地存储操作
   async saveLocal(note: Note): Promise<void> {
     const db = await this.initDB();
     return new Promise((resolve, reject) => {
       const transaction = db.transaction([this.STORE_NAME], 'readwrite');
       const store = transaction.objectStore(this.STORE_NAME);
-      const request = store.put(note);
+      const request = store.put({
+        ...note,
+        sync_status: 'pending'
+      });
       
       request.onsuccess = () => resolve();
       request.onerror = () => reject(request.error);
     });
   }
 
-  // 从本地获取
   async getLocal(id: string): Promise<Note | null> {
     const db = await this.initDB();
     return new Promise((resolve, reject) => {
@@ -54,62 +53,108 @@ class StorageService {
     });
   }
 
-  // 同步到 GitHub Gist
-  async syncToGist(notes: Note[]): Promise<string> {
-    if (!this.githubToken) {
-      throw new Error('GitHub token not set');
-    }
-
-    const content = JSON.stringify(notes);
-    const response = await fetch('https://api.github.com/gists', {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${this.githubToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        description: 'Notes Backup',
-        public: false,
-        files: {
-          'notes.json': {
-            content
-          }
-        }
-      })
+  async getAllLocal(): Promise<Note[]> {
+    const db = await this.initDB();
+    return new Promise((resolve, reject) => {
+      const transaction = db.transaction([this.STORE_NAME], 'readonly');
+      const store = transaction.objectStore(this.STORE_NAME);
+      const request = store.getAll();
+      
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
     });
-
-    if (!response.ok) {
-      throw new Error('Failed to sync with GitHub');
-    }
-
-    const data = await response.json();
-    return data.id; // 返回 Gist ID
   }
 
-  // 从 GitHub Gist 恢复
-  async restoreFromGist(gistId: string): Promise<Note[]> {
-    if (!this.githubToken) {
-      throw new Error('GitHub token not set');
+  // GitHub Gist 操作
+  async initGist(token: string) {
+    this.octokit = new Octokit({ auth: token });
+    const gistId = localStorage.getItem('gistId');
+    
+    if (gistId) {
+      this.gistId = gistId;
+    } else {
+      this.gistId = await this.createGist();
+      localStorage.setItem('gistId', this.gistId);
     }
+  }
 
-    const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-      headers: {
-        'Authorization': `token ${this.githubToken}`,
+  private async createGist(): Promise<string> {
+    if (!this.octokit) throw new Error('GitHub not initialized');
+
+    const response = await this.octokit.gists.create({
+      description: 'Notes App Sync',
+      public: false,
+      files: {
+        'notes.json': {
+          content: JSON.stringify({
+            notes: [],
+            version: Date.now(),
+            lastSync: new Date().toISOString()
+          })
+        }
       }
     });
 
-    if (!response.ok) {
-      throw new Error('Failed to restore from GitHub');
-    }
-
-    const data = await response.json();
-    const content = data.files['notes.json'].content;
-    return JSON.parse(content);
+    return response.data.id;
   }
 
-  // 设置 GitHub token
-  setGithubToken(token: string) {
-    this.githubToken = token;
+  async syncToGist(): Promise<void> {
+    if (!this.octokit || !this.gistId) {
+      throw new Error('GitHub not initialized');
+    }
+
+    const notes = await this.getAllLocal();
+    const content: GistContent = {
+      notes,
+      version: Date.now(),
+      lastSync: new Date().toISOString()
+    };
+
+    await this.octokit.gists.update({
+      gist_id: this.gistId,
+      files: {
+        'notes.json': {
+          content: JSON.stringify(content, null, 2)
+        }
+      }
+    });
+
+    // 更新所有笔记的同步状态
+    const db = await this.initDB();
+    const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(this.STORE_NAME);
+    
+    for (const note of notes) {
+      await store.put({
+        ...note,
+        sync_status: 'synced'
+      });
+    }
+  }
+
+  async restoreFromGist(): Promise<void> {
+    if (!this.octokit || !this.gistId) {
+      throw new Error('GitHub not initialized');
+    }
+
+    const response = await this.octokit.gists.get({
+      gist_id: this.gistId
+    });
+
+    const content = response.data.files?.['notes.json']?.content;
+    if (!content) return;
+
+    const data = JSON.parse(content) as GistContent;
+    const db = await this.initDB();
+    const transaction = db.transaction([this.STORE_NAME], 'readwrite');
+    const store = transaction.objectStore(this.STORE_NAME);
+
+    for (const note of data.notes) {
+      await store.put({
+        ...note,
+        sync_status: 'synced'
+      });
+    }
   }
 }
 
